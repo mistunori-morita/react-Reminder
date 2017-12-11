@@ -88,6 +88,9 @@ export const ADD_REMINDER = 'ADD_REMINDER';
 ```js
 import { ADD_REMINDER } from '../constance';
 
+#Action
+//Actionは「何をする」という情報を持ったオブジェクトです。Actionはtypeプロパティを必ず持つ必要があります
+
 export const addReminder = (text) => {
   const action = {
     type: ADD_REMINDER,
@@ -146,4 +149,55 @@ const reminders = (state = [], action) => {
 
 export default reminders;
 
-``
+```
+- src/components/App.jsxを修正
+
+```js
+
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { addReminder } from '../actions';
+
+
+class App extends Component {
+  //constrctorで初期化
+  constructor(props) {
+    super(props);
+    this.state = {
+      text: ''
+    }
+  }
+
+  addReminder() {
+    // console.log('this', this);
+    this.props.addReminder(this.state.text);
+  }
+
+  render(){
+    return(
+      <div className="App">
+        <div className="title">
+          Reminder Pro
+        </div>
+        <div className="form-inline">
+          <div className="form-group">
+            <input className="form-control"
+              placeholder="I have to..."
+              //onChangeイベントで入力したものを取得
+              onChange={event => this.setState({text: event.target.value})}
+              />
+          </div>
+          //onClickでaddReminder()関数を走らせてthis.stateのtextに値を代入
+          <button type="button" className="btn btn-success" onClick={ () => this.addReminder()}>Add Reminder</button>
+        </div>
+      </div>
+    )
+  }
+}
+
+
+
+export default connect(null, {addReminder})(App);
+
+
+```
