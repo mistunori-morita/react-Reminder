@@ -482,3 +482,68 @@ deleteReminder(id) {
 
 //これが昨日すると削除する機能が実装できている
 ```
+
+##　日付入力フィールドの作成
+- App.jsに新しくインプットタグを追加
+```js
+
+//constrctorも追記
+constructor(props) {
+  super(props);
+  this.state = {
+    text: '',
+    //追記
+    dueDate: ''
+  }
+}
+
+
+<input
+  className="form-control"
+  type="datetime-local"
+  onChange={event => this.setState({dueDate: event.target.value})}
+  />
+
+```
+
+- actions/index.jsを編集
+```js
+//dueDateを追加
+export const addReminder = (text, dueDate) => {
+  const action = {
+    type: ADD_REMINDER,
+    text,
+    //dueDateを追加
+    dueDate
+  }
+  console.log('action in addReminder', action);
+  return action;
+}
+
+```
+
+- reduces/index.js
+```js
+
+//変更
+const reminder = (action) => {
+  let { text, dueDate } = action;
+  return {
+    text,
+    dueDate,
+    id: Math.random()
+  }
+}
+
+```
+
+- App.jsで取得できているか見る
+```js
+addReminder() {
+  // console.log('this', this);
+  console.log('this.state.dueDate',this.state.dueDate);
+  this.props.addReminder(this.state.text,this.state.dueDate);
+}
+
+//これで取得できていると日付がdueDateに入ってくる
+```

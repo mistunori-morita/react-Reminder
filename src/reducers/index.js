@@ -1,8 +1,10 @@
 import { ADD_REMINDER , DELETE_REMINDER } from '../constance';
 
 const reminder = (action) => {
+  let { text, dueDate } = action;
   return {
-    text: action.text,
+    text,
+    dueDate,
     id: Math.random()
   }
 }
