@@ -314,3 +314,99 @@ input{
 }
 
 ```
+
+##　リマインダー削除の追加
+- constance.jsに追記
+```js
+export const ADD_REMINDER = 'ADD_REMINDER';
+//追記
+export const DELETE_REMINDER = 'DELETE_REMINDER';
+```
+
+- App.jsの関数を編集
+```js
+renderReminders() {
+  const { reminders } = this.props;
+  return (
+    <ul className="list-group col-sm-4">
+      {
+        reminders.map(reminder => {
+          return(
+            <li key={reminder.id} className="list-group-item">
+              <div className="list-item">{reminder.text}</div>
+              //ここに追加
+              <div className="list-item delete-button">
+                &#x2715;
+              </div>
+            </li>
+          )
+        })
+      }
+    </ul>
+  )
+}
+
+
+```
+- actions/index.jsを編集
+```js
+import { ADD_REMINDER, DELETE_REMINDER } from '../constance';
+
+export const addReminder = (text) => {
+  const action = {
+    type: ADD_REMINDER,
+    text
+  }
+  console.log('action in addReminder', action);
+  return action;
+}
+
+export const deleteReminder = (id) => {
+    const action = {
+      type: DELETE_REMINDER,
+      id
+    }
+    console.log('deleting in actions', action);
+    return action;
+}
+
+```
+- App.jsにインポート
+```js
+import { addReminder, deleteReminder } from '../actions';
+
+  //新しく関数を設定
+  deleteReminder(id) {
+    console.log('deleting in application', id);
+    console.log('this.props',this.props);
+  }
+
+  renderReminders() {
+    const { reminders } = this.props;
+    return (
+      <ul className="list-group col-sm-4">
+        {
+          reminders.map(reminder => {
+            return(
+              <li key={reminder.id} className="list-group-item">
+                <div className="list-item">{reminder.text}</div>
+                //削除ようのパーツを設定
+                <div className="list-item delete-button"
+                  onClick={() => this.deleteReminder(reminder.id)}
+                >
+                  &#x2715;
+                </div>
+              </li>
+            )
+          })
+        }
+      </ul>
+    )
+  }
+
+
+//deleteReminderを設定
+export default connect(mapStateToProps, {addReminder, deleteReminder })(App);
+
+//この段階でブラウザで挙動を確認すると、Xボタンが追加されており、クリックするとコンソールにdeleting in applicationが表示されている(削除されるidが表示されている)
+```
