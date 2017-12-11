@@ -201,3 +201,116 @@ export default connect(null, {addReminder})(App);
 
 
 ```
+
+## 状態のマッピング App.jsxの修正
+```js
+render(){
+  console.log('this.props',this.props);
+  return(
+    <div className="App">
+      <div className="title">
+        Reminder Pro
+      </div>
+      <div className="form-inline">
+        <div className="form-group">
+          <input className="form-control"
+            placeholder="I have to..."
+            onChange={event => this.setState({text: event.target.value})}
+            />
+        </div>
+        <button type="button" className="btn btn-success" onClick={ () => this.addReminder()}>Add Reminder</button>
+      </div>
+    </div>
+  )
+}
+}
+
+//追加
+function mapStateToProps(state) {
+  return{
+    reminders: state
+  }
+}
+```
+
+## リマインダーリストの表示
+- App.jsを追記・変更
+```js
+
+//上省略
+
+//新しい関数を作成
+  renderReminders() {
+    const { reminders } = this.props;
+    return (
+      <ul className="list-group col-sm-4">
+        {
+          reminders.map(reminder => {
+            return(
+              <li key={reminder.id} className="list-group-item">
+                <div>{reminder.text}</div>
+              </li>
+            )
+          })
+        }
+      </ul>
+    )
+  }
+
+  render(){
+    return(
+      <div className="App">
+        <div className="title">
+          Reminder Pro
+        </div>
+        <div className="form-inline reminder-form">
+          <div className="form-group">
+            <input className="form-control"
+              placeholder="I have to..."
+              onChange={event => this.setState({text: event.target.value})}
+              />
+          </div>
+          <button type="button" className="btn btn-success" onClick={ () => this.addReminder()}>Add Reminder</button>
+        </div>
+        //ここに埋め込むことで、clickイベントが作動したときに新しくrenderRemindersが走って新しいエレメントが作られる
+          { this.renderReminders() }
+      </div>
+    )
+  }
+}
+
+
+function mapStateToProps(state) {
+  return{
+    reminders: state
+  }
+}
+
+
+export default connect(mapStateToProps, {addReminder})(App);
+
+
+```
+- src/index.cssを作成してスタリング
+```css
+.App{
+  padding-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.title{
+  text-align: center;
+  font-size: 26px;
+}
+
+input{
+  margin: 5px;
+}
+
+.reminder-form{
+  padding: 5px;
+}
+
+```
