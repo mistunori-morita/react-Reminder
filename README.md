@@ -547,3 +547,26 @@ addReminder() {
 
 //これで取得できていると日付がdueDateに入ってくる
 ```
+
+## Moment.jsを導入
+- `npm install moment --save`を行う
+- App.jsに記述
+```js
+import moment from 'moment'; //これを記述
+
+reminders.map(reminder => {
+  return(
+    <li key={reminder.id} className="list-group-item">
+      <div className="list-item">
+        <div>{reminder.text}</div>
+        //ここに追記
+        <div><em>{moment(new Date(reminder.dueDate)).fromNow()}</em></div>
+      </div>
+      <div className="list-item delete-button"
+        onClick={() => this.deleteReminder(reminder.id)}
+      >
+        &#x2715;
+      </div>
+    </li>
+  )
+```
