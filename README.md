@@ -77,3 +77,73 @@ ReactDOM.render(
 
 //できて入れば入力フォーム＋緑色のボタンが作成されている
 ```
+
+## アクションとアクションクリエーター
+- src/constance.jsを作成
+```js
+export const ADD_REMINDER = 'ADD_REMINDER';
+
+```
+- src/actions/index.jsを作成
+```js
+import { ADD_REMINDER } from '../constance';
+
+export const addReminder = (text) => {
+  const action = {
+    type: ADD_REMINDER,
+    text
+  }
+  console.log('action in addReminder', action);
+  return action;
+}
+
+```
+
+## Reduxの導入
+- src/index.jsの修正
+```js
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+import App from './components/App';
+
+//この２つをインポート
+import { Provider } from 'react-redux';
+import { createStore } from 'redux'
+
+const store = createStore();
+
+ReactDOM.render(
+  <Provider store={store}>
+    <App />
+  </Provider>,
+   document.getElementById('root')
+)
+
+```
+- src直下にreducersフォルダを作成し、その中にindex.jsを作成
+```js
+import { ADD_REMINDER } from '../constance';
+
+const reminder = (action) => {
+  return {
+    text: action.text,
+    id: Math.random()
+  }
+}
+
+const reminders = (state = [], action) => {
+  let reminders = null;
+  switch(action.type){
+    case ADD_REMINDER:
+    reminders = [...state, reminder(action)];
+    console.log('reinders as state', reminders);
+    return reminders;
+    default:
+    return state;
+  }
+}
+
+export default reminders;
+
+``
