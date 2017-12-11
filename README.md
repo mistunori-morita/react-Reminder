@@ -315,7 +315,7 @@ input{
 
 ```
 
-##　リマインダー削除の追加
+## リマインダー削除の追加
 - constance.jsに追記
 ```js
 export const ADD_REMINDER = 'ADD_REMINDER';
@@ -409,4 +409,76 @@ import { addReminder, deleteReminder } from '../actions';
 export default connect(mapStateToProps, {addReminder, deleteReminder })(App);
 
 //この段階でブラウザで挙動を確認すると、Xボタンが追加されており、クリックするとコンソールにdeleting in applicationが表示されている(削除されるidが表示されている)
+```
+
+- index.cssを編集
+```html
+//削除ようのパーツを作ったのでスタイリングしていく
+
+
+
+.list-item{
+  display: inline-block;
+}
+
+.delete-button{
+  float: right;
+  padding-left: 5px;
+}
+
+```
+
+## リストコンポーネントの削除
+- reducers/index.jsを修正
+```js
+
+import { ADD_REMINDER , DELETE_REMINDER } from '../constance';
+
+const reminder = (action) => {
+  return {
+    text: action.text,
+    id: Math.random()
+  }
+}
+
+const removeById = (state = [], id) => {
+  const reminders = state.filter(reminder => reminder.id !== id);
+  console.log('new reduced reminders', reminders);
+  return reminders;
+}
+
+const reminders = (state = [], action) => {
+  let reminders = null;
+  switch(action.type){
+    case ADD_REMINDER:
+    reminders = [...state, reminder(action)];
+    console.log('reinders as tate', reminders);
+    return reminders;
+    case DELETE_REMINDER:
+      reminders = removeById(state, action.id);
+      return reminders;
+    default:
+    return state;
+  }
+}
+
+
+
+export default reminders;
+
+
+```
+
+- App.jsを編集
+
+```js
+
+//deleteReminderの関数にthis.props.deleteReminder(id)を渡す
+deleteReminder(id) {
+  console.log('deleting in application', id);
+  console.log('this.props',this.props);
+  this.props.deleteReminder(id);
+}
+
+//これが昨日すると削除する機能が実装できている
 ```
