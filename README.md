@@ -574,6 +574,7 @@ reminders.map(reminder => {
 ## Cookiesを設定して履歴を残せるようにする
 - `npm install sfcookies`をターミナルで追加
 - reducers/index.jsに追記
+
 ```js
 import { ADD_REMINDER , DELETE_REMINDER } from '../constance';
 //import
@@ -615,10 +616,152 @@ const reminders = (state = [], action) => {
     return state;
   }
 }
-
+```
 
 
 export default reminders;
 
 
+## 全てのリマインダーをクリアする
+- constance.jsに追記
+```js
+export const ADD_REMINDER = 'ADD_REMINDER';
+export const DELETE_REMINDER = 'DELETE_REMINDER';
+//追加
+export const CLEAR_REMINDER = 'CLEAR_REMINDER';
+
 ```
+
+- actions/index.jsに新しくCLEAR_REMINDERを作成
+```js
+import { ADD_REMINDER, DELETE_REMINDER ,CLEAR_REMINDER} from '../constance';
+
+export const addReminder = (text, dueDate) => {
+  const action = {
+    type: ADD_REMINDER,
+    text,
+    dueDate
+  }
+  console.log('action in addReminder', action);
+  return action;
+}
+
+export const deleteReminder = (id) => {
+    const action = {
+      type: DELETE_REMINDER,
+      id
+    }
+    console.log('deleting in actions', action);
+    return action;
+}
+
+//新しく追加
+export const clearReminders = () => {
+  return {
+    type: CLEAR_REMINDER
+  }
+}
+
+```
+- reducers/index.jsに追記
+```js
+//CLEAR_REMINDERを設定
+import { ADD_REMINDER , DELETE_REMINDER , CLEAR_REMINDER } from '../constance';
+import { bake_cookie, read_cookie } from 'sfcookies';
+
+const reminder = (action) => {
+  let { text, dueDate } = action;
+  return {
+    text,
+    dueDate,
+    id: Math.random()
+  }
+}
+
+const removeById = (state = [], id) => {
+  const reminders = state.filter(reminder => reminder.id !== id);
+  console.log('new reduced reminders', reminders);
+  return reminders;
+}
+
+const reminders = (state = [], action) => {
+  let reminders = null;
+  state = read_cookie('reminders');
+
+  switch(action.type){
+    case ADD_REMINDER:
+    reminders = [...state, reminder(action)];
+    bake_cookie('reminders', reminders);
+    return reminders;
+    case DELETE_REMINDER:
+      reminders = removeById(state, action.id);
+      bake_cookie('reminders', reminders);
+      return reminders;
+      //ここを追加
+    case CLEAR_REMINDER:
+      reminders = [];
+      bake_cookie('reminders', reminders);
+      return reminders;
+    default:
+    return state;
+  }
+}
+
+
+
+export default reminders;
+
+```
+
+- App.jsにインポート
+```js
+
+import { addReminder, deleteReminder, clearReminders } from '../actions';
+
+
+return(
+  <div className="App">
+    <div className="title">
+      Reminder Pro
+    </div>
+    <div className="form-inline reminder-form">
+      <div className="form-group">
+        <input className="form-control"
+          placeholder="I have to..."
+          onChange={event => this.setState({text: event.target.value})}
+          />
+
+        <input
+          className="form-control"
+          type="datetime-local"
+          onChange={event => this.setState({dueDate: event.target.value})}
+          />
+      </div>
+      <button type="button" className="btn btn-success" onClick={ () => this.addReminder()}>Add Reminder</button>
+    </div>
+      { this.renderReminders() }
+      //ここにclearRemindersを追加
+    <div className="btn btn-danger"
+      onClick={ () => this.props.clearReminders()}
+      >
+        Clear Reminders
+    </div>
+  </div>
+
+//clearRemindersを設定
+  export default connect(mapStateToProps, {addReminder, deleteReminder, clearReminders })(App);
+
+//問題なければこれでClear Remindersが機能して全削除機能が使えるようになっている
+```
+
+## まとめ
+- Redux - Reactアプリケーションがデータを1つの巨大なストアに抽出できるようにするJavaScriptライブラリ。
+- Reduxを追加する3つのステップ
+- 1）還元定数を定義します。
+- 2）アクションクリエータを追加します。
+- 3）減速機の修正または追加
+- プロバイダー - レフィックスストアをグローバルに提供する、レフィックスアプリケーションのルートにあるコンポーネント。
+- mapDispatchToProps - アクション作成者がthis.propsを通じてReactコンポーネント内でアクセスできるようにします。
+- mapStateToProps - reduxストア内のレデューサーがthis.propsを通じてReactコンポーネント内でアクセスできるようにします。
+- bindActionCreators - アクション作成者がReactコンポーネントのthis.props内に格納できるようにするreduxメソッド。
+- Cookies - ブラウザに格納されている文字列値をマップする文字列名。アプリケーションがブラウザのデータのローカル履歴を保持できる
